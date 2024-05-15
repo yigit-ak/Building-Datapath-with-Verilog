@@ -11,7 +11,7 @@ out4,		//Output of mux with (Branch&ALUZero) control-mult4
 out5,   ///////////////////////////////////////////////////////////////////////////////////////////Yeni ekledim jum mux çıkışı  
 sum,		//ALU result
 extad,	//Output of sign-extend unit
-zext,	///////////////////////////////////////////////////////////////////////////////////////////Yeni ekledim zero extend çıkışı
+zeroextout,	///////////////////////////////////////////////////////////////////////////////////////////Yeni ekledim zero extend çıkışı
 adder1out,	//Output of adder which adds PC and 4-add1
 adder2out,	//Output of adder which adds PC+4 and 2 shifted sign-extend result-add2
 sextad;	//Output of shift left 2 unit
@@ -32,7 +32,7 @@ dpack;	//Read data output of memory (data read from memory)
 
 wire [2:0] gout;	//Output of ALU control unit
 
-wire zout,	//Zero output of ALU
+wire zout,nflag,vflag,ltoeflag,	//Zero output of ALU ///////////////////////////// nflag,vflag,ltoeflag alu çıkışına bunlar eklendi
 pcsrc,	//Output of AND gate with Branch and ZeroOut inputs
 //Control signals
 regdest,alusrc,memtoreg,regwrite,memread,memwrite,branch,aluop1,aluop0,
@@ -81,7 +81,7 @@ assign dpack={datmem[sum[5:0]],datmem[sum[5:0]+1],datmem[sum[5:0]+2],datmem[sum[
 newmult8_to_1_5  mult1(out1,instruc[20:16],instruc[15:11],5'b11001,5'b00000,5'b11111,5'b00000,5'b00000,5'b00000,regdest,blezal,orgate1);
 
 //mux with ALUSrc control
-newmult8_to_1_32 mult2(out2,datab,extad,zext,32'b0,32'b0,32'b0,32'b0,32'b0,alusrc,nandi,blezal);
+newmult8_to_1_32 mult2(out2,datab,extad,zeroextout,32'b0,32'b0,32'b0,32'b0,32'b0,alusrc,nandi,blezal);
 
 //mux with MemToReg control
 newmult4_to_1_32 mult3(out3,sum,dpack,adder1out,32'b0,memtoreg,orgate2);
@@ -96,12 +96,12 @@ newmult4_to_1_32 mult5(out5,out4,jumpaddress,dpack,32'b0,orgate4,jmxor);
 
 // load pc
 always @(negedge clk)
-pc=out4;
+pc=out5;/////////////////////////////////out 4 değiştirildi out5 yapıldı
 
 // alu, adder and control logic connections
 
 //ALU unit
-alu32 alu1(sum,dataa,out2,zout,gout);
+alu32 alu1(sum,dataa,out2,zout,gout,nflag,vflag,ltoeflag);///////////////nflag,vflag,ltoeflag bunlar eklendi ltoe => less than or equal
 
 //adder which adds PC and 4
 adder add1(pc,32'h4,adder1out);
@@ -110,11 +110,13 @@ adder add1(pc,32'h4,adder1out);
 adder add2(adder1out,sextad,adder2out);
 
 //Control unit
-control cont(instruc[31:26],regdest,alusrc,memtoreg,regwrite,memread,memwrite,branch,
-aluop1,aluop0);
-
+control cont(instruc[31:26],regdest,alusrc,memtoreg,regwrite,memread,memwrite,branch,aluop1,aluop0,jump,brv,jmxor,nandi,blezal,jalpc,baln);
+///////////////////////////////////////////////////////////////////////////////////////////////////yeni sinyaller eklendi
 //Sign extend unit
 signext sext(instruc[15:0],extad);
+
+//Zero extend unit
+zeroextend zext(instruc[15:0],zeroextout);////////////////////////////////////////////zero extend eklendi
 
 //ALU control unit
 alucont acont(aluop1,aluop0,instruc[3],instruc[2], instruc[1], instruc[0] ,gout);
@@ -122,8 +124,16 @@ alucont acont(aluop1,aluop0,instruc[3],instruc[2], instruc[1], instruc[0] ,gout)
 //Shift-left 2 unit
 shift shift2(sextad,extad);
 
-//AND gate
+//Branch mux related gates
 assign pcsrc=branch && zout; 
+
+//ALUSrc mux related gates
+
+//MemtoReg mux related gates
+
+//RegDst mux related gates
+
+//Jump mux related gates
 
 //initialize datamemory,instruction memory and registers
 //read initial data from files given in hex
