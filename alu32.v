@@ -1,24 +1,69 @@
-module alu32(sum,a,b,zout,gin);//ALU operation according to the ALU control line values
-output [31:0] sum;
-input [31:0] a,b; 
-input [2:0] gin;//ALU control line
-reg [31:0] sum;
-reg [31:0] less;
-output zout;
-reg zout;
-always @(a or b or gin)
+module alu32(
+	result, // result of ALU [output]
+	v_flag, // if result causes overflow [output]
+	n_flag, // if result is negative [output]
+	z_flag, // if result is zero [output]
+	op1, // operand 1 [input]
+	op2, // operand 2 [input]
+	alu_control_code // code from ALU controller [input]
+);
+
+input [31:0] op1, op2;
+input [3:0] alu_control_code;
+
+output [31:0] result;
+output v_flag, n_flag, z_flag;
+
+reg [31:0] result;
+reg [31:0] subtracted_value;
+reg v_flag, n_flag, z_flag;
+
+always @(op1 or op2 or alu_control_code)
 begin
-	case(gin)
-	3'b010: sum=a+b; 		//ALU control line=010, ADD
-	3'b110: sum=a+1+(~b);	//ALU control line=110, SUB
-	3'b111: begin less=a+1+(~b);	//ALU control line=111, set on less than
-			if (less[31]) sum=1;	
-			else sum=0;
-		  end
-	3'b000: sum=a & b;	//ALU control line=000, AND
-	3'b001: sum=a|b;		//ALU control line=001, OR
-	default: sum=31'bx;	
+	case(alu_control_code)
+	// ALU Control Line = 0000 (AND)
+	4'b0000: result = op1 & op2;
+
+	// ALU Control Line = 0001 (OR)
+	4'b0001: result = op1 | op2;
+
+	// ALU Control Line = 0010 (ADD)
+	4'b0010: result = op1 + op2;
+
+	// ALU Control Line = 0110 (SUB)
+	4'b0110: result = op1 + 1 + (~op2);
+
+	// ALU Control Line = 0111 (set-on-less-than)
+	4'b0111:
+	begin
+		subtracted_value = op1 + 1 + (~op2);
+		if (subtracted_value[31]) result = 1;
+		else result = 0;
+	end;
+
+	// ALU Control Line = 1001 (NOR)
+	4'b1001: result = ~(op1 | op2);
+
+	// ALU Control Line = 1100 (NAND)
+	4'b1001: result = ~(op1 & op2);
+	
+	// ALU Control Line = 1101 (XOR)
+	4'b1101: result = op1 ^ op2;
+	
+	// ALU Control Line = 1111 (NOP)
+	4'b1111: result = result;
+
+	default: result=31'bx;
 	endcase
-zout=~(|sum);
+
+// update flags
+v_flag = (op1[31] & op1[31] & ~result[31]) | 
+         (~op1[31] & ~op1[31] & result[31]) | 
+		 (op1[31] & ~op1[31] & ~result[31]) | 
+		 (~op1[31] & op1[31] & result[31])
+n_flag = result[31];
+z_flag = ~(|result);
+
 end
+
 endmodule
