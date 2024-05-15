@@ -11,6 +11,7 @@ out4,		//Output of mux with (Branch&ALUZero) control-mult4
 out5,   ///////////////////////////////////////////////////////////////////////////////////////////Yeni ekledim jum mux çıkışı  
 sum,		//ALU result
 extad,	//Output of sign-extend unit
+zext,	///////////////////////////////////////////////////////////////////////////////////////////Yeni ekledim zero extend çıkışı
 adder1out,	//Output of adder which adds PC and 4-add1
 adder2out,	//Output of adder which adds PC+4 and 2 shifted sign-extend result-add2
 sextad;	//Output of shift left 2 unit
@@ -35,7 +36,7 @@ wire zout,	//Zero output of ALU
 pcsrc,	//Output of AND gate with Branch and ZeroOut inputs
 //Control signals
 regdest,alusrc,memtoreg,regwrite,memread,memwrite,branch,aluop1,aluop0,
-brv,jmxor,nandi,blezal,jalpc,baln;//////////////////////////////////////////////////////////////////////////Yeni sinyalleri ekledim control unit den
+jump,brv,jmxor,nandi,blezal,jalpc,baln;//////////////////////////////////////////////////////////////////////////Yeni sinyalleri ekledim control unit den
 
 //32-size register file (32 bit(1 word) for each register)
 reg [31:0] registerfile[0:31];
@@ -77,16 +78,21 @@ assign dpack={datmem[sum[5:0]],datmem[sum[5:0]+1],datmem[sum[5:0]+2],datmem[sum[
 
 //multiplexers
 //mux with RegDst control
-mult2_to_1_5  mult1(out1, instruc[20:16],instruc[15:11],regdest);
+newmult8_to_1_5  mult1(out1,instruc[20:16],instruc[15:11],5'b11001,5'b00000,5'b11111,5'b00000,5'b00000,5'b00000,regdest,blezal,orgate1);
 
 //mux with ALUSrc control
-mult2_to_1_32 mult2(out2, datab,extad,alusrc);
+newmult8_to_1_32 mult2(out2,datab,extad,zext,32'b0,32'b0,32'b0,32'b0,32'b0,alusrc,nandi,blezal);
 
 //mux with MemToReg control
-mult2_to_1_32 mult3(out3, sum,dpack,memtoreg);
+newmult4_to_1_32 mult3(out3,sum,dpack,adder1out,32'b0,memtoreg,orgate2);
 
 //mux with (Branch&ALUZero) control
-mult2_to_1_32 mult4(out4, adder1out,adder2out,pcsrc);
+newmult4_to_1_32 mult4(out4,adder1out,adder2out,dataa,32'b0,orgate3,brv);
+
+//mux with jump control
+newmult4_to_1_32 mult5(out5,out4,jumpaddress,dpack,32'b0,orgate4,jmxor);
+
+//////////////////////////////////////////////////////////////////////////////////////////////////////Tüm mux lar değiştirildi
 
 // load pc
 always @(negedge clk)
