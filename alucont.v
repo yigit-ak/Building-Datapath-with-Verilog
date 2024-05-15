@@ -17,8 +17,7 @@ begin
 	else if (~(f3)&f2&~(f1)&~(f0))gout=4'b0000;		//function code=0100,ALU control=0000 (and)
 	else if (~(f3)&f2&f1&f0)gout=4'b1001;  // function code=0111, ALU control=1001 (nor)
 	else if (~(f3)&f2&f1&~(f0))gout=4'b1101; // function code=0110, ALU control=1101 (xor)
-	else if (~(f3)&~(f2)&f1&f0)gout=4'b1101; //fucntion code=0011, ALU control=1101 (jmxor)
-	else if (aluop1&~(aluop0)&f3)gout=4'b0100; // function code=1xxx, ALU control=0100 (andi)
+	else if (~(f3)&~(f2)&f1&f0)gout=4'b1101; //function code=0011, ALU control=1101 (jmxor)
 	else if (aluop1&aluop0&~(f3))gout=4'b1111; // function code=0xxx, ALU control=1111 (brv) NO OPERATION
 	  
 end
@@ -41,8 +40,7 @@ module alu_controller_testbench();
     aluop2=1; aluop1=0; aluop0=0; f3=1; f2=0; f1=1; f0=0; #10;
     aluop2=1; aluop1=0; aluop0=0; f3=0; f2=1; f1=1; f0=1; #10;
     aluop2=1; aluop1=0; aluop0=0; f3=0; f2=1; f1=1; f0=0; #10;
-    aluop2=1; aluop1=0; aluop0=0; f3=0; f2=0; f1=1; f0=0; #10; // CHECK
-    aluop2=1; aluop1=1; aluop0=0; f3=1; #10;
+    aluop2=1; aluop1=0; aluop0=0; f3=0; f2=0; f1=1; f0=1; #10;
     aluop2=1; aluop1=1; aluop0=1; f3=0;
     $finish;
   end
