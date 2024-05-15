@@ -37,7 +37,8 @@ pcsrc,	//Output of AND gate with Branch and ZeroOut inputs
 //Control signals
 regdest,alusrc,memtoreg,regwrite,memread,memwrite,branch,aluop1,aluop0,
 jump,brv,jmxor,nandi,blezal,jalpc,baln,//////////////////////////////////////////////////////////////////////////Yeni sinyalleri ekledim control unit den
-blezalandgateout,orgate3out,brvandgateout,orgate1out;////////////////////////////////////////////////ara kablolar eklendi devamı gelicek
+blezalandgateout,orgate3out,brvandgateout,orgate1out,orgate2out,
+orgate4out,balnandgateout;////////////////////////////////////////////////tüm ara kablolar eklendi
 
 //32-size register file (32 bit(1 word) for each register)
 reg [31:0] registerfile[0:31];
@@ -85,13 +86,13 @@ newmult8_to_1_5  mult1(out1,instruc[20:16],instruc[15:11],5'b11001,5'b00000,5'b1
 newmult8_to_1_32 mult2(out2,datab,extad,zeroextout,32'b0,32'b0,32'b0,32'b0,32'b0,alusrc,nandi,blezal);
 
 //mux with MemToReg control
-newmult4_to_1_32 mult3(out3,sum,dpack,adder1out,32'b0,memtoreg,orgate2);
+newmult4_to_1_32 mult3(out3,sum,dpack,adder1out,32'b0,memtoreg,orgate2out);
 
 //mux with (Branch&ALUZero) control
 newmult4_to_1_32 mult4(out4,adder1out,adder2out,dataa,32'b0,orgate3out,brvandgateout);
 
 //mux with jump control
-newmult4_to_1_32 mult5(out5,out4,jumpaddress,dpack,32'b0,orgate4,jmxor);
+newmult4_to_1_32 mult5(out5,out4,jumpaddress,dpack,32'b0,orgate4out,jmxor);
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////Tüm mux lar değiştirildi
 
@@ -135,11 +136,14 @@ assign brvandgateout = vflag & brv;//////////////////////////////////////Branch 
 //////////////////////////////////////////////////////////////////////////////////extradan kapıya ihtiyaç yok
 	
 //MemtoReg mux related gates
+assign orgate2out = jmxor | jalpc | blezal | baln;//////////////////////////////////////MemtoReg le ilgili tüm kapılar eklendi
 
 //RegDst mux related gates
 assign orgate1out = jmxor | baln;//////////////////////////////////////RegDst le ilgili tüm kapılar eklendi
 
 //Jump mux related gates
+assign balnandgateout = baln & nflag;
+assign orgate4out = jump | balnandgateout;//////////////////////////////////////Jump le ilgili tüm kapılar eklendi
 
 //initialize datamemory,instruction memory and registers
 //read initial data from files given in hex
