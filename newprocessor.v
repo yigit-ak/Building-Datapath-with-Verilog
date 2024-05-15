@@ -30,12 +30,12 @@ wire [31:0] jumpaddress;	///////////////////////////////////////////////////////
 wire [31:0] instruc,	//current instruction
 dpack;	//Read data output of memory (data read from memory)
 
-wire [2:0] gout;	//Output of ALU control unit
+wire [3:0] gout;	//Output of ALU control unit
 
 wire zout,nflag,vflag,ltoeflag,	//Zero output of ALU ///////////////////////////// nflag,vflag,ltoeflag alu çıkışına bunlar eklendi
 pcsrc,	//Output of AND gate with Branch and ZeroOut inputs
 //Control signals
-regdest,alusrc,memtoreg,regwrite,memread,memwrite,branch,aluop1,aluop0,
+regdest,alusrc,memtoreg,regwrite,memread,memwrite,branch,aluop2,aluop1,aluop0,
 jump,brv,jmxor,nandi,blezal,jalpc,baln,//////////////////////////////////////////////////////////////////////////Yeni sinyalleri ekledim control unit den
 blezalandgateout,orgate3out,brvandgateout,orgate1out,orgate2out,
 orgate4out,balnandgateout;////////////////////////////////////////////////tüm ara kablolar eklendi
@@ -121,7 +121,7 @@ signext sext(instruc[15:0],extad);
 zeroextend zext(instruc[15:0],zeroextout);////////////////////////////////////////////zero extend eklendi
 
 //ALU control unit
-alucont acont(aluop1,aluop0,instruc[3],instruc[2], instruc[1], instruc[0] ,gout);
+alucont acont(aluop2,aluop1,aluop0,instruc[3],instruc[2], instruc[1], instruc[0] ,gout);
 
 //Shift-left 2 unit
 shift shift2(sextad,extad);
