@@ -33,13 +33,13 @@ dpack;	//Read data output of memory (data read from memory)
 
 wire [3:0] gout;	//Output of ALU control unit
 
-wire zout,nflag,vflag,ltoeflag,	//Zero output of ALU ///////////////////////////// nflag,vflag,ltoeflag alu çıkışına bunlar eklendi
+wire zout,nflag,vflag,zflag;	//Zero output of ALU ///////////////////////////// nflag,vflag,zlag alu çıkışına bunlar eklendi
 pcsrc,	//Output of AND gate with Branch and ZeroOut inputs
 //Control signals
 regdest,alusrc,memtoreg,regwrite,memread,memwrite,branch,aluop2,aluop1,aluop0,
 jump,brv,jmxor,nandi,blezal,jalpc,baln,//////////////////////////////////////////////////////////////////////////Yeni sinyalleri ekledim control unit den
 blezalandgateout,orgate3out,brvandgateout,orgate1out,orgate2out,
-orgate4out,balnandgateout;////////////////////////////////////////////////tüm ara kablolar eklendi
+orgate4out,balnandgateout,blezalorgateout;////////////////////////////////////////////////tüm ara kablolar eklendi
 
 //32-size register file (32 bit(1 word) for each register)
 reg [31:0] registerfile[0:31];
@@ -104,7 +104,7 @@ pc=out5;/////////////////////////////////out 4 değiştirildi out5 yapıldı
 // alu, adder and control logic connections
 
 //ALU unit
-alu32 alu1(sum,dataa,out2,zout,gout,nflag,vflag,ltoeflag);///////////////nflag,vflag,ltoeflag bunlar eklendi ltoe => less than or equal
+	alu32 alu1(sum,dataa,out2,zout,gout,nflag,vflag,zlag);///////////////nflag,vflag,zlag
 
 //adder which adds PC and 4
 adder add1(pc,32'h4,adder1out);
@@ -128,8 +128,9 @@ alucont acont(aluop2,aluop1,aluop0,instruc[3],instruc[2], instruc[1], instruc[0]
 shift shift2(sextad,extad);
 
 //Branch mux related gates
-assign pcsrc=branch & zout; 
-assign blezalandgateout = blezal & ltoeflag;
+assign pcsrc=branch & zout;
+assign blezalorgateout = zflag | nflag;
+assign blezalandgateout = blezal & blezalorgateout;
 assign orgate3out = pcsrc | blezalandgateout | jalpc;
 assign brvandgateout = vflag & brv;//////////////////////////////////////Branch le ilgili tüm kapılar eklendi
 
@@ -137,7 +138,7 @@ assign brvandgateout = vflag & brv;//////////////////////////////////////Branch 
 //////////////////////////////////////////////////////////////////////////////////extradan kapıya ihtiyaç yok
 	
 //MemtoReg mux related gates
-assign orgate2out = jmxor | jalpc | blezal | baln;//////////////////////////////////////MemtoReg le ilgili tüm kapılar eklendi
+assign orgate2out = jmxor | jalpc | blezalandgateout | balnandgateout;//////////////////////////////////////MemtoReg le ilgili tüm kapılar eklendi
 
 //RegDst mux related gates
 assign orgate1out = jmxor | baln;//////////////////////////////////////RegDst le ilgili tüm kapılar eklendi
