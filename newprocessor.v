@@ -26,6 +26,7 @@ out1;		//Write data input of Register File
 wire [15:0] inst15_0;	//15-0 bits of instruction
 
 wire [31:0] jumpaddress;	////////////////////////////////////////////////////////////////////////////////////Jump address yeni ekledim
+wire [25:0] inst25_0;           ////////////////////////////////////////////////////////////////////////////////////jump için yeni kablo eklendi
 
 wire [31:0] instruc,	//current instruction
 dpack;	//Read data output of memory (data read from memory)
