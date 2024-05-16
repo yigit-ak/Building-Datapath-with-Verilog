@@ -67,7 +67,8 @@ end
  assign inst20_16=instruc[20:16];
  assign inst15_11=instruc[15:11];
  assign inst15_0=instruc[15:0];
-
+ assign inst25_0=instruc[25:0];
+	
 
 // registers
 
@@ -104,7 +105,7 @@ pc=out5;/////////////////////////////////out 4 değiştirildi out5 yapıldı
 // alu, adder and control logic connections
 
 //ALU unit
-	alu32 alu1(sum,dataa,out2,zout,gout,nflag,vflag,zlag);///////////////nflag,vflag,zlag
+alu32 alu1(sum,dataa,out2,zout,gout,nflag,vflag,zlag);///////////////nflag,vflag,zlag
 
 //adder which adds PC and 4
 adder add1(pc,32'h4,adder1out);
@@ -126,6 +127,8 @@ alucont acont(aluop2,aluop1,aluop0,instruc[3],instruc[2], instruc[1], instruc[0]
 
 //Shift-left 2 unit
 shift shift2(sextad,extad);
+
+	findjumpaddress fja(inst25_0,adder1out,jumpaddress);////////////////////////jump adres oluşturuldu
 
 //Branch mux related gates
 assign pcsrc=branch & zout;
