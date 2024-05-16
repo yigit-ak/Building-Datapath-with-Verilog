@@ -128,7 +128,7 @@ alucont acont(aluop2,aluop1,aluop0,instruc[3],instruc[2], instruc[1], instruc[0]
 //Shift-left 2 unit
 shift shift2(sextad,extad);
 
-	findjumpaddress fja(inst25_0,adder1out,jumpaddress);////////////////////////jump adres oluşturuldu
+findjumpaddress fja(inst25_0,adder1out,jumpaddress);////////////////////////jump adres oluşturuldu
 
 //Branch mux related gates
 assign pcsrc=branch & zout;
