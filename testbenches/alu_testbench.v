@@ -1,15 +1,15 @@
 module alu_testbench();
 
-reg [31:0] op1, op2;
-reg [3:0] alu_control_code;
+reg signed [31:0] op1, op2;
+reg signed [3:0] alu_control_code;
 
-wire [31:0] result;
-wire v_flag, n_flag, z_flag;
+wire signed [31:0] result;
+wire signed v_flag, n_flag, z_flag;
   
 initial
 begin
-  op1 = 32'h00ff;
-  op2 = 32'h0f0f;
+  op1 = 32'h00_00_ff_ff;
+  op2 = 32'h00_ff_00_ff;
 
   // tests for logic operations
   alu_control_code = 4'b0000; #10; // AND
@@ -43,6 +43,44 @@ begin
   $display("%d - %d = %d", op1, op2, result);
   op1 = -32'sd10; op2 = -32'sd10; #10; // N-N
   $display("%d - %d = %d", op1, op2, result);
+
+  // tests for flags
+  // flags should remain same after logical operations
+  op1 = 32'h00_00_ff_ff;
+  op2 = 32'h00_ff_00_ff;
+  $display("previous values of flags: V = %d, N = %d, Z = %d", v_flag, n_flag, z_flag);
+  alu_control_code = 4'b0000; #10; // AND
+  $display("after AND: V = %d, N = %d, Z = %d", v_flag, n_flag, z_flag);
+  alu_control_code = 4'b0001; #10; // OR
+  $display("after OR: V = %d, N = %d, Z = %d", v_flag, n_flag, z_flag);
+  alu_control_code = 4'b1001; #10; // NOR
+  $display("after NOR: V = %d, N = %d, Z = %d", v_flag, n_flag, z_flag);
+  alu_control_code = 4'b1101; #10; // XOR
+  $display("after XOR: V = %d, N = %d, Z = %d", v_flag, n_flag, z_flag);
+  alu_control_code = 4'b1100; #10; // NAND
+  $display("after NAND: V = %d, N = %d, Z = %d", v_flag, n_flag, z_flag);
+
+  // test for Z flag
+  alu_control_code = 4'b0110; // SUB
+  op1 = 32'sd10; op2 = 32'sd10; #10; // z-flag on
+  $display("%d - %d = %d, Z = %d", op1, op2, result, z_flag);
+  op1 = -32'sd10; op2 = 32'sd10; #10; // z-flag off
+  $display("%d - %d = %d, Z = %d", op1, op2, result, z_flag);
+
+  // test for N flag
+  alu_control_code = 4'b0110; // SUB
+  op1 = -32'sd10; op2 = 32'sd10; #10; // n-flag on
+  $display("%d - %d = %d, N = %d", op1, op2, result, n_flag);
+  op1 = 32'sd10; op2 = 32'sd10; #10; // n-flag off
+  $display("%d - %d = %d, N = %d", op1, op2, result, n_flag);
+
+  // test for V flag
+  alu_control_code = 4'b0010; // ADD
+  op1 = 32'sh7fffffff; op2 = 32'sh7fffffff;
+  $display("%d + %d = %d, V = %d", op1, op, result, v_flag);
+  alu_control_code = 4'b0010; // ADD
+  op1 = 32'sh80000000; op2 = 32'sh80000000;
+  $display("%d + %d = %d, V = %d", op1, op, result, v_flag);
 
   $finish;
 end

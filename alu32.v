@@ -28,14 +28,31 @@ begin
 	4'b0001: result = op1 | op2;
 
 	// ALU Control Line = 0010 (ADD)
-	4'b0010: result = op1 + op2;
+	4'b0010: begin
+		result = op1 + op2;
+		// update flags
+		v_flag = (op1[31] & op1[31] & ~result[31]) | 
+				(~op1[31] & ~op1[31] & result[31]) | 
+				(op1[31] & ~op1[31] & ~result[31]) | 
+				(~op1[31] & op1[31] & result[31]);
+		n_flag = result[31];
+		z_flag = ~(|result);
+	end
 
 	// ALU Control Line = 0110 (SUB)
-	4'b0110: result = op1 + 1 + (~op2);
+	4'b0110: begin
+		result = op1 + 1 + (~op2);
+		// update flags
+		v_flag = (op1[31] & op1[31] & ~result[31]) | 
+				(~op1[31] & ~op1[31] & result[31]) | 
+				(op1[31] & ~op1[31] & ~result[31]) | 
+				(~op1[31] & op1[31] & result[31]);
+		n_flag = result[31];
+		z_flag = ~(|result);
+	end
 
 	// ALU Control Line = 0111 (set-on-less-than)
-	4'b0111:
-	begin
+	4'b0111: begin
 		subtracted_value = op1 + 1 + (~op2);
 		if (subtracted_value[31]) result = 1;
 		else result = 0;
@@ -55,14 +72,6 @@ begin
 
 	default: result=31'bx;
 	endcase
-
-// update flags
-v_flag = (op1[31] & op1[31] & ~result[31]) | 
-         (~op1[31] & ~op1[31] & result[31]) | 
-		 (op1[31] & ~op1[31] & ~result[31]) | 
-		 (~op1[31] & op1[31] & result[31]);
-n_flag = result[31];
-z_flag = ~(|result);
 
 end
 
