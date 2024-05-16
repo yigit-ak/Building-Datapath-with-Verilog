@@ -1,10 +1,10 @@
-module alu_testbench;
+module alu_testbench();
 
 reg [31:0] op1, op2;
 reg [3:0] alu_control_code;
 
-reg [31:0] result;
-reg v_flag, n_flag, z_flag;
+wire [31:0] result;
+wire v_flag, n_flag, z_flag;
   
 initial
 begin
@@ -46,5 +46,5 @@ begin
 
   $finish;
 end
-
+alu32 alu(result, v_flag, n_flag, z_flag, op1, op2,alu_control_code);
 endmodule
