@@ -39,13 +39,13 @@ begin
 		subtracted_value = op1 + 1 + (~op2);
 		if (subtracted_value[31]) result = 1;
 		else result = 0;
-	end;
+	end
 
 	// ALU Control Line = 1001 (NOR)
 	4'b1001: result = ~(op1 | op2);
 
 	// ALU Control Line = 1100 (NAND)
-	4'b1001: result = ~(op1 & op2);
+	4'b1100: result = ~(op1 & op2);
 	
 	// ALU Control Line = 1101 (XOR)
 	4'b1101: result = op1 ^ op2;
@@ -60,7 +60,7 @@ begin
 v_flag = (op1[31] & op1[31] & ~result[31]) | 
          (~op1[31] & ~op1[31] & result[31]) | 
 		 (op1[31] & ~op1[31] & ~result[31]) | 
-		 (~op1[31] & op1[31] & result[31])
+		 (~op1[31] & op1[31] & result[31]);
 n_flag = result[31];
 z_flag = ~(|result);
 
