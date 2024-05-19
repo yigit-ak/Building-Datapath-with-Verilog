@@ -31,24 +31,16 @@ begin
 	4'b0010: begin
 		result = op1 + op2;
 		// update flags
-		v_flag = (op1[31] & op1[31] & ~result[31]) | 
-				(~op1[31] & ~op1[31] & result[31]) | 
-				(op1[31] & ~op1[31] & ~result[31]) | 
-				(~op1[31] & op1[31] & result[31]);
+		v_flag = (op1[31] == op2[31]) && (result[31] != op1[31]);
 		n_flag = result[31];
-		z_flag = ~(|result);
 	end
 
 	// ALU Control Line = 0110 (SUB)
 	4'b0110: begin
 		result = op1 + 1 + (~op2);
 		// update flags
-		v_flag = (op1[31] & op1[31] & ~result[31]) | 
-				(~op1[31] & ~op1[31] & result[31]) | 
-				(op1[31] & ~op1[31] & ~result[31]) | 
-				(~op1[31] & op1[31] & result[31]);
+		v_flag = (op1[31] != op2[31]) && (result[31] != op1[31]);
 		n_flag = result[31];
-		z_flag = ~(|result);
 	end
 
 	// ALU Control Line = 0111 (set-on-less-than)
@@ -72,6 +64,8 @@ begin
 
 	default: result=31'bx;
 	endcase
+
+	z_flag = ~(|result);
 
 end
 

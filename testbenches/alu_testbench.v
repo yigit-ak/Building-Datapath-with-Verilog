@@ -4,7 +4,7 @@ reg signed [31:0] op1, op2;
 reg signed [3:0] alu_control_code;
 
 wire signed [31:0] result;
-wire signed v_flag, n_flag, z_flag;
+wire v_flag, n_flag, z_flag;
   
 initial
 begin
@@ -12,14 +12,14 @@ begin
   op2 = 32'h00_ff_00_ff;
 
   // tests for logic operations
-  alu_control_code = 4'b0000; #10; // AND
-  $display("%h AND %h = %h", op1, op2, result);
+  alu_control_code = 4'b0000; #10; // AND 
+  $display("%h AND  %h = %h", op1, op2, result);
   alu_control_code = 4'b0001; #10; // OR
-  $display("%h OR %h = %h", op1, op2, result);
+  $display("%h OR   %h = %h", op1, op2, result);
   alu_control_code = 4'b1001; #10; // NOR
-  $display("%h NOR %h = %h", op1, op2, result);
+  $display("%h NOR  %h = %h", op1, op2, result);
   alu_control_code = 4'b1101; #10; // XOR
-  $display("%h XOR %h = %h", op1, op2, result);
+  $display("%h XOR  %h = %h", op1, op2, result);
   alu_control_code = 4'b1100; #10; // NAND
   $display("%h NAND %h = %h", op1, op2, result);
 
@@ -48,41 +48,56 @@ begin
   // flags should remain same after logical operations
   op1 = 32'h00_00_ff_ff;
   op2 = 32'h00_ff_00_ff;
-  $display("previous values of flags: V = %d, N = %d, Z = %d", v_flag, n_flag, z_flag);
+  $display("previous values of flags: V = %b, N = %b, Z = %b", v_flag, n_flag, z_flag);
   alu_control_code = 4'b0000; #10; // AND
-  $display("after AND: V = %d, N = %d, Z = %d", v_flag, n_flag, z_flag);
+  $display("after AND:  V = %b, N = %b, Z = %b", v_flag, n_flag, z_flag);
   alu_control_code = 4'b0001; #10; // OR
-  $display("after OR: V = %d, N = %d, Z = %d", v_flag, n_flag, z_flag);
+  $display("after OR:   V = %b, N = %b, Z = %b", v_flag, n_flag, z_flag);
   alu_control_code = 4'b1001; #10; // NOR
-  $display("after NOR: V = %d, N = %d, Z = %d", v_flag, n_flag, z_flag);
+  $display("after NOR:  V = %b, N = %b, Z = %b", v_flag, n_flag, z_flag);
   alu_control_code = 4'b1101; #10; // XOR
-  $display("after XOR: V = %d, N = %d, Z = %d", v_flag, n_flag, z_flag);
+  $display("after XOR:  V = %b, N = %b, Z = %b", v_flag, n_flag, z_flag);
   alu_control_code = 4'b1100; #10; // NAND
-  $display("after NAND: V = %d, N = %d, Z = %d", v_flag, n_flag, z_flag);
+  $display("after NAND: V = %b, N = %b, Z = %b", v_flag, n_flag, z_flag);
 
   // test for Z flag
   alu_control_code = 4'b0110; // SUB
   op1 = 32'sd10; op2 = 32'sd10; #10; // z-flag on
-  $display("%d - %d = %d, Z = %d", op1, op2, result, z_flag);
+  $display("%d - %d = %d, Z = %b", op1, op2, result, z_flag);
   op1 = -32'sd10; op2 = 32'sd10; #10; // z-flag off
-  $display("%d - %d = %d, Z = %d", op1, op2, result, z_flag);
+  $display("%d - %d = %d, Z = %b", op1, op2, result, z_flag);
 
   // test for N flag
   alu_control_code = 4'b0110; // SUB
   op1 = -32'sd10; op2 = 32'sd10; #10; // n-flag on
-  $display("%d - %d = %d, N = %d", op1, op2, result, n_flag);
+  $display("%d - %d = %d, N = %b", op1, op2, result, n_flag);
   op1 = 32'sd10; op2 = 32'sd10; #10; // n-flag off
-  $display("%d - %d = %d, N = %d", op1, op2, result, n_flag);
+  $display("%d - %d = %d, N = %b", op1, op2, result, n_flag);
 
   // test for V flag
   alu_control_code = 4'b0010; // ADD
-  op1 = 32'sh7fffffff; op2 = 32'sh7fffffff;
-  $display("%d + %d = %d, V = %d", op1, op, result, v_flag);
-  alu_control_code = 4'b0010; // ADD
-  op1 = 32'sh80000000; op2 = 32'sh80000000;
-  $display("%d + %d = %d, V = %d", op1, op, result, v_flag);
+  op1 = 32'h7fffffff; op2 = 32'h7fffffff; #10;
+  $display("%h + %h = %h, V = %b", op1, op2, result, v_flag);
+  op1 = 32'h80000000; op2 = 32'h80000000; #10;
+  $display("%h + %h = %h, V = %b", op1, op2, result, v_flag);
+  op1 = 32'h11111111; op2 = 32'h11111111; #10;
+  $display("%h + %h = %h, V = %b", op1, op2, result, v_flag);
+  op1 = 32'h80000000; op2 = 32'h11111111; #10;
+  $display("%h + %h = %h, V = %b", op1, op2, result, v_flag);
+
+  alu_control_code = 4'b0110; // SUB
+  op1 = 32'h7fffffff; op2 = -32'h7fffffff; #10;
+  $display("%h - %h = %h, V = %b", op1, op2, result, v_flag);
+  op1 = 32'h80000000; op2 = 32'h80000000; #10;
+  $display("%h - %h = %h, V = %b", op1, op2, result, v_flag);
+  op1 = 32'h7fffffff; op2 = 32'h11111111; #10;
+  $display("%h - %h = %h, V = %b", op1, op2, result, v_flag);
+  op1 = 32'h11111111; op2 = 32'h80000000; #10;
+  $display("%h - %h = %h, V = %b", op1, op2, result, v_flag);
 
   $finish;
 end
+
 alu32 alu(result, v_flag, n_flag, z_flag, op1, op2,alu_control_code);
+
 endmodule
