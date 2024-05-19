@@ -9,6 +9,6 @@ module AddressCombiner(input1,input2,newaddress);
   assign shifted_input1 = input1 << 2;
   assign fourbit_input2 = input2[31:28];
   
-  assign output = {last4_input2,shifted_input1};
+  assign newaddress = {last4_input2,shifted_input1};
 
 endmodule
