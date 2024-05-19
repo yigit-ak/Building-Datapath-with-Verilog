@@ -12,6 +12,7 @@ begin
   op2 = 32'h00_ff_00_ff;
 
   // tests for logic operations
+  $display("----- Tests for Logic Operations -----");
   alu_control_code = 4'b0000; #10; // AND 
   $display("%h AND  %h = %h", op1, op2, result);
   alu_control_code = 4'b0001; #10; // OR
@@ -24,6 +25,7 @@ begin
   $display("%h NAND %h = %h", op1, op2, result);
 
   // tests for arithmetic operations
+  $display("----- Tests for Arithmetic Operations -----");
   alu_control_code = 4'b0010; // ADD
   op1 = 32'sd10; op2 = 32'sd10; #10; // P+P
   $display("%d + %d = %d", op1, op2, result);
@@ -46,6 +48,7 @@ begin
 
   // tests for flags
   // flags should remain same after logical operations
+  $display("----- Tests for Flags and Logical Operations -----");
   op1 = 32'h00_00_ff_ff;
   op2 = 32'h00_ff_00_ff;
   $display("previous values of flags: V = %b, N = %b, Z = %b", v_flag, n_flag, z_flag);
@@ -61,6 +64,7 @@ begin
   $display("after NAND: V = %b, N = %b, Z = %b", v_flag, n_flag, z_flag);
 
   // test for Z flag
+  $display("----- Tests for Z-Flag -----");
   alu_control_code = 4'b0110; // SUB
   op1 = 32'sd10; op2 = 32'sd10; #10; // z-flag on
   $display("%d - %d = %d, Z = %b", op1, op2, result, z_flag);
@@ -68,6 +72,7 @@ begin
   $display("%d - %d = %d, Z = %b", op1, op2, result, z_flag);
 
   // test for N flag
+  $display("----- Tests for N-Flag -----");
   alu_control_code = 4'b0110; // SUB
   op1 = -32'sd10; op2 = 32'sd10; #10; // n-flag on
   $display("%d - %d = %d, N = %b", op1, op2, result, n_flag);
@@ -75,6 +80,7 @@ begin
   $display("%d - %d = %d, N = %b", op1, op2, result, n_flag);
 
   // test for V flag
+  $display("----- Tests for Overflow -----");
   alu_control_code = 4'b0010; // ADD
   op1 = 32'h7fffffff; op2 = 32'h7fffffff; #10;
   $display("%h + %h = %h, V = %b", op1, op2, result, v_flag);
