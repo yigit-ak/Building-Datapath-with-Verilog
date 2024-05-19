@@ -33,7 +33,7 @@ dpack;	//Read data output of memory (data read from memory)
 
 wire [3:0] gout;	//Output of ALU control unit
 
-wire zout,nflag,vflag,zflag;	//Zero output of ALU ///////////////////////////// nflag,vflag,zlag alu çıkışına bunlar eklendi
+wire zout,nflag,vflag,zflag,	//Zero output of ALU ///////////////////////////// nflag,vflag,zlag alu çıkışına bunlar eklendi
 pcsrc,	//Output of AND gate with Branch and ZeroOut inputs
 //Control signals
 regdest,alusrc,memtoreg,regwrite,memread,memwrite,branch,aluop2,aluop1,aluop0,
