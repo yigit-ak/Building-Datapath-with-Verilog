@@ -1,4 +1,4 @@
-module mult8_to_1_5(out, i0, i1, i2, i3, i4, i5, i6, i7, s0, s1, s2);
+module newmult8_to_1_5(out, i0, i1, i2, i3, i4, i5, i6, i7, s0, s1, s2);
 output [4:0] out;
 input [4:0] i0, i1, i2, i3, i4, i5, i6, i7;
 input s0, s1, s2;
