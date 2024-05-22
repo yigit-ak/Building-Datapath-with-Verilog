@@ -1,4 +1,4 @@
-module processor;
+module newprocessor;
 reg [31:0] pc; //32-bit prograom counter
 reg clk; //clock
 reg [7:0] datmem[0:31],mem[0:31]; //32-size data and instruction memory (8 bit(1 byte) for each location)
