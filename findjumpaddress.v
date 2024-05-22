@@ -1,4 +1,4 @@
-module AddressCombiner(input1,input2,newaddress);
+module findjumpaddress(input1,input2,newaddress);
   input [25:0] input1;  //jump address
   input [31:0] input2;  //PC + 4
   output [31:0] newaddress;  
