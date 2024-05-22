@@ -105,7 +105,7 @@ pc=out5;/////////////////////////////////out 4 değiştirildi out5 yapıldı
 // alu, adder and control logic connections
 
 //ALU unit
-alu32 alu1(sum,dataa,out2,zout,gout,nflag,vflag,zlag);///////////////nflag,vflag,zlag
+alu32 alu1(sum,vflag,nflag,zlag,dataa,out2,gout,zout);///////////////nflag,vflag,zlag
 
 //adder which adds PC and 4
 adder add1(pc,32'h4,adder1out);
