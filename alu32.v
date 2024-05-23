@@ -5,18 +5,19 @@ module alu32(
 	z_flag, // if result is zero [output]
 	op1, // operand 1 [input]
 	op2, // operand 2 [input]
-	alu_control_code // code from ALU controller [input]
+	alu_control_code,
+	zout // code from ALU controller [input]
 );
 
 input [31:0] op1, op2;
 input [3:0] alu_control_code;
 
 output [31:0] result;
-output v_flag, n_flag, z_flag;
+output v_flag, n_flag, z_flag, zout;
 
 reg [31:0] result;
 reg [31:0] subtracted_value;
-reg v_flag, n_flag, z_flag;
+reg v_flag, n_flag, z_flag, zout;
 
 always @(op1 or op2 or alu_control_code)
 begin
@@ -66,6 +67,7 @@ begin
 	endcase
 
 	z_flag = ~(|result);
+	zout = ~(|result);
 
 end
 
