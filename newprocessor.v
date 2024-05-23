@@ -1,7 +1,7 @@
 module newprocessor;
 reg [31:0] pc; //32-bit prograom counter
 reg clk; //clock
-reg [7:0] datmem[0:31],mem[0:31]; //32-size data and instruction memory (8 bit(1 byte) for each location)
+reg [31:0] datmem[0:31],mem[0:31]; //32-size data and instruction memory (8 bit(1 byte) for each location)
 wire [31:0] 
 dataa,	//Read data 1 output of Register File
 datab,	//Read data 2 output of Register File
@@ -154,9 +154,9 @@ assign orgate4out = jump | balnandgateout;//////////////////////////////////////
 //read initial data from files given in hex
 initial
 begin
-$readmemh("initDm.dat",datmem); //read Data Memory
-$readmemh("initIM.dat",mem);//read Instruction Memory
-$readmemh("initReg.dat",registerfile);//read Register File
+$readmemb("initDm.dat",datmem); //read Data Memory
+$readmemb("initIM.dat",mem);//read Instruction Memory
+$readmemb("initReg.dat",registerfile);//read Register File
 
 	for(i=0; i<31; i=i+1)
 	$display("Instruction Memory[%0d]= %h  ",i,mem[i],"Data Memory[%0d]= %h   ",i,datmem[i],
