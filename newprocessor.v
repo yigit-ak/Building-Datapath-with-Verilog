@@ -114,7 +114,7 @@ adder add1(pc,32'h4,adder1out);
 adder add2(adder1out,sextad,adder2out);
 
 //Control unit
-control cont(instruc[31:26],regdest,alusrc,memtoreg,regwrite,memread,memwrite,branch,aluop2,aluop1,aluop0,jump,brv,jmxor,nandi,blezal,jalpc,baln);
+control cont(instruc[31:26],instruc[5:0],regdest,alusrc,memtoreg,regwrite,memread,memwrite,branch,aluop2,aluop1,aluop0,jump,brv,jmxor,nandi,blezal,jalpc,baln);
 ///////////////////////////////////////////////////////////////////////////////////////////////////yeni sinyaller eklendi
 //Sign extend unit
 signext sext(instruc[15:0],extad);
