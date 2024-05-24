@@ -8,10 +8,10 @@ datab,	//Read data 2 output of Register File
 out2,		//Output of mux with ALUSrc control-mult2
 out3,		//Output of mux with MemToReg control-mult3
 out4,		//Output of mux with (Branch&ALUZero) control-mult4
-out5,   ///////////////////////////////////////////////////////////////////////////////////////////Yeni ekledim jum mux çıkışı  
+out5,   ///////////////////////////////////////////////////////////////////////////////////////////Yeni ekledim jum mux �?k???  
 sum,		//ALU result
 extad,	//Output of sign-extend unit
-zeroextout,	///////////////////////////////////////////////////////////////////////////////////////////Yeni ekledim zero extend çıkışı
+zeroextout,	///////////////////////////////////////////////////////////////////////////////////////////Yeni ekledim zero extend �?k???
 adder1out,	//Output of adder which adds PC and 4-add1
 adder2out,	//Output of adder which adds PC+4 and 2 shifted sign-extend result-add2
 sextad;	//Output of shift left 2 unit
@@ -26,25 +26,51 @@ out1;		//Write data input of Register File
 wire [15:0] inst15_0;	//15-0 bits of instruction
 
 wire [31:0] jumpaddress;	////////////////////////////////////////////////////////////////////////////////////Jump address yeni ekledim
-wire [25:0] inst25_0;           ////////////////////////////////////////////////////////////////////////////////////jump için yeni kablo eklendi
+wire [25:0] inst25_0;           ////////////////////////////////////////////////////////////////////////////////////jump i�in yeni kablo eklendi
 
 wire [31:0] instruc,	//current instruction
 dpack;	//Read data output of memory (data read from memory)
 
 wire [3:0] gout;	//Output of ALU control unit
 
-wire zout,nflag,vflag,zflag,	//Zero output of ALU ///////////////////////////// nflag,vflag,zflag alu çıkışına bunlar eklendi
+wire zout,nflag,vflag,zflag,	//Zero output of ALU ///////////////////////////// nflag,vflag,zflag alu �?k???na bunlar eklendi
 pcsrc,	//Output of AND gate with Branch and ZeroOut inputs
 //Control signals
 regdest,alusrc,memtoreg,regwrite,memread,memwrite,branch,aluop2,aluop1,aluop0,
 jump,brv,jmxor,nandi,blezal,jalpc,baln,//////////////////////////////////////////////////////////////////////////Yeni sinyalleri ekledim control unit den
 blezalandgateout,orgate3out,brvandgateout,orgate1out,orgate2out,
-orgate4out,balnandgateout,blezalorgateout;////////////////////////////////////////////////tüm ara kablolar eklendi
+orgate4out,balnandgateout,blezalorgateout;////////////////////////////////////////////////t�m ara kablolar eklendi
 
 //32-size register file (32 bit(1 word) for each register)
 reg [31:0] registerfile[0:31];
 
 integer i;
+
+//initialize datamemory,instruction memory and registers
+//read initial data from files given in hex
+initial
+begin
+$readmemb("initDm.dat",datmem); //read Data Memory
+$readmemb("initIM.dat",mem);//read Instruction Memory
+$readmemb("initReg.dat",registerfile);//read Register File
+
+	/*for(i=0; i<31; i=i+1)
+	$display("Instruction Memory[%0d]= %h  ",i,mem[i],"Data Memory[%0d]= %h   ",i,datmem[i],
+	"Register[%0d]= %h",i,registerfile[i]);*/
+end
+
+initial
+begin
+pc=0;
+#400 $finish;
+	
+end
+initial
+begin
+clk=0;
+//40 time unit for each cycle
+forever #20  clk=~clk;
+end
 
 // datamemory connections
 
@@ -61,7 +87,7 @@ end
 
 //instruction memory
 //4-byte instruction
- assign instruc={mem[pc[4:0]],mem[pc[4:0]+1],mem[pc[4:0]+2],mem[pc[4:0]+3]};
+ assign instruc=mem[pc[4:0]];
  assign inst31_26=instruc[31:26];
  assign inst25_21=instruc[25:21];
  assign inst20_16=instruc[20:16];
@@ -75,7 +101,7 @@ end
 assign dataa=registerfile[inst25_21];//Read register 1
 assign datab=registerfile[inst20_16];//Read register 2
 always @(posedge clk)
- registerfile[out1]= regwrite ? out3:registerfile[out1];//Write data to register
+ registerfile[out1] = regwrite ? out3:registerfile[out1];//Write data to register
 
 //read data from memory, sum stores address
 assign dpack={datmem[sum[5:0]],datmem[sum[5:0]+1],datmem[sum[5:0]+2],datmem[sum[5:0]+3]};
@@ -96,19 +122,19 @@ newmult4_to_1_32 mult4(out4,adder1out,adder2out,dataa,32'b0,orgate3out,brvandgat
 //mux with jump control
 newmult4_to_1_32 mult5(out5,out4,jumpaddress,dpack,32'b0,orgate4out,jmxor);
 
-//////////////////////////////////////////////////////////////////////////////////////////////////////Tüm mux lar değiştirildi
+//////////////////////////////////////////////////////////////////////////////////////////////////////T�m mux lar de?i?tirildi
 
 // load pc
 always @(negedge clk)
-pc=out5;/////////////////////////////////out 4 değiştirildi out5 yapıldı
+#40 pc = out5;/////////////////////////////////out 4 de?i?tirildi out5 yap?ld?
 
 // alu, adder and control logic connections
 
 //ALU unit
 alu32 alu1(sum,vflag,nflag,zflag,dataa,out2,gout,zout);///////////////nflag,vflag,zflag
 
-//adder which adds PC and 4
-adder add1(pc,32'h4,adder1out);
+//adder which adds PC and 1
+adder add1(pc,32'h1,adder1out);
 
 //adder which adds PC+4 and 2 shifted sign-extend result
 adder add2(adder1out,sextad,adder2out);
@@ -128,53 +154,28 @@ alucont acont(aluop2,aluop1,aluop0,instruc[3],instruc[2], instruc[1], instruc[0]
 //Shift-left 2 unit
 shift shift2(sextad,extad);
 
-findjumpaddress fja(inst25_0,adder1out,jumpaddress);////////////////////////jump adres oluşturuldu
+findjumpaddress fja(inst25_0,adder1out,jumpaddress);////////////////////////jump adres olu?turuldu
 
 //Branch mux related gates
 assign pcsrc=branch & zout;
 assign blezalorgateout = zflag | nflag;
 assign blezalandgateout = blezal & blezalorgateout;
 assign orgate3out = pcsrc | blezalandgateout | jalpc;
-assign brvandgateout = vflag & brv;//////////////////////////////////////Branch le ilgili tüm kapılar eklendi
+assign brvandgateout = vflag & brv;//////////////////////////////////////Branch le ilgili t�m kap?lar eklendi
 
 //ALUSrc mux related gates
-//////////////////////////////////////////////////////////////////////////////////extradan kapıya ihtiyaç yok
+//////////////////////////////////////////////////////////////////////////////////extradan kap?ya ihtiya� yok
 	
 //MemtoReg mux related gates
-assign orgate2out = jmxor | jalpc | blezalandgateout | balnandgateout;//////////////////////////////////////MemtoReg le ilgili tüm kapılar eklendi
+assign orgate2out = jmxor | jalpc | blezalandgateout | balnandgateout;//////////////////////////////////////MemtoReg le ilgili t�m kap?lar eklendi
 
 //RegDst mux related gates
-assign orgate1out = jmxor | baln;//////////////////////////////////////RegDst le ilgili tüm kapılar eklendi
+assign orgate1out = jmxor | baln;//////////////////////////////////////RegDst le ilgili t�m kap?lar eklendi
 
 //Jump mux related gates
 assign balnandgateout = baln & nflag;
-assign orgate4out = jump | balnandgateout;//////////////////////////////////////Jump le ilgili tüm kapılar eklendi
+assign orgate4out = jump | balnandgateout;//////////////////////////////////////Jump le ilgili t�m kap?lar eklendi
 
-//initialize datamemory,instruction memory and registers
-//read initial data from files given in hex
-initial
-begin
-$readmemb("initDm.dat",datmem); //read Data Memory
-$readmemb("initIM.dat",mem);//read Instruction Memory
-$readmemb("initReg.dat",registerfile);//read Register File
-
-	for(i=0; i<31; i=i+1)
-	$display("Instruction Memory[%0d]= %h  ",i,mem[i],"Data Memory[%0d]= %h   ",i,datmem[i],
-	"Register[%0d]= %h",i,registerfile[i]);
-end
-
-initial
-begin
-pc=0;
-#400 $finish;
-	
-end
-initial
-begin
-clk=0;
-//40 time unit for each cycle
-forever #20  clk=~clk;
-end
 initial 
 begin
   $monitor($time,"PC %h",pc,"  SUM %h",sum,"   INST %h",instruc[31:0],
