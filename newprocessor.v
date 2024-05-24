@@ -1,7 +1,7 @@
 module newprocessor;
-reg [31:0] pc; //32-bit prograom counter
+reg [31:0] pc; //32-bit program counter
 reg clk; //clock
-reg [31:0] datmem[0:31],mem[0:31]; //32-size data and instruction memory (8 bit(1 byte) for each location)
+reg [7:0] datmem[0:127],mem[0:127]; //32-size data and instruction memory (8 bit(1 byte) for each location)
 wire [31:0] 
 dataa,	//Read data 1 output of Register File
 datab,	//Read data 2 output of Register File
@@ -54,9 +54,9 @@ $readmemb("initDm.dat",datmem); //read Data Memory
 $readmemb("initIM.dat",mem);//read Instruction Memory
 $readmemb("initReg.dat",registerfile);//read Register File
 
-	/*for(i=0; i<31; i=i+1)
+	for(i=0; i<31; i=i+1)
 	$display("Instruction Memory[%0d]= %h  ",i,mem[i],"Data Memory[%0d]= %h   ",i,datmem[i],
-	"Register[%0d]= %h",i,registerfile[i]);*/
+	"Register[%0d]= %h",i,registerfile[i]);
 end
 
 initial
@@ -87,7 +87,7 @@ end
 
 //instruction memory
 //4-byte instruction
- assign instruc=mem[pc[4:0]];
+ assign instruc={mem[pc[4:0]],mem[pc[4:0]+1],mem[pc[4:0]+2],mem[pc[4:0]+3]};
  assign inst31_26=instruc[31:26];
  assign inst25_21=instruc[25:21];
  assign inst20_16=instruc[20:16];
@@ -133,8 +133,8 @@ always @(negedge clk)
 //ALU unit
 alu32 alu1(sum,vflag,nflag,zflag,dataa,out2,gout,zout);///////////////nflag,vflag,zflag
 
-//adder which adds PC and 1
-adder add1(pc,32'h1,adder1out);
+//adder which adds PC and 4
+adder add1(pc,32'h4,adder1out);
 
 //adder which adds PC+4 and 2 shifted sign-extend result
 adder add2(adder1out,sextad,adder2out);
