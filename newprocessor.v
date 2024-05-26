@@ -1,7 +1,7 @@
 module newprocessor;
 reg [31:0] pc; //32-bit program counter
 reg clk; //clock
-reg [7:0] datmem[0:127],mem[0:127]; //32-size data and instruction memory (8 bit(1 byte) for each location)
+reg [7:0] datmem[0:127],mem[0:255]; //32-size data and instruction memory (8 bit(1 byte) for each location)
 wire [31:0] 
 dataa,	//Read data 1 output of Register File
 datab,	//Read data 2 output of Register File
@@ -54,7 +54,7 @@ $readmemb("initDm.dat",datmem); //read Data Memory
 $readmemb("initIM.dat",mem);//read Instruction Memory
 $readmemb("initReg.dat",registerfile);//read Register File
 
-	for(i=0; i<31; i=i+1)
+	for(i=0; i<32; i=i+1)
 	$display("Instruction Memory[%0d]= %h  ",i,mem[i],"Data Memory[%0d]= %h   ",i,datmem[i],
 	"Register[%0d]= %h",i,registerfile[i]);
 end
@@ -62,19 +62,19 @@ end
 initial
 begin
 pc=0;
-#400 $finish;
+#4000 $finish;
 	
 end
 initial
 begin
 clk=0;
 //40 time unit for each cycle
-forever #20  clk=~clk;
+forever #40  clk=~clk;
 end
 
 // datamemory connections
 
-always @(posedge clk)
+always @(negedge clk)
 //write data to memory
 if (memwrite)
 begin 
@@ -87,7 +87,7 @@ end
 
 //instruction memory
 //4-byte instruction
- assign instruc={mem[pc[4:0]],mem[pc[4:0]+1],mem[pc[4:0]+2],mem[pc[4:0]+3]};
+ assign instruc={mem[pc[6:0]],mem[pc[6:0]+1],mem[pc[6:0]+2],mem[pc[6:0]+3]};
  assign inst31_26=instruc[31:26];
  assign inst25_21=instruc[25:21];
  assign inst20_16=instruc[20:16];
@@ -100,7 +100,7 @@ end
 
 assign dataa=registerfile[inst25_21];//Read register 1
 assign datab=registerfile[inst20_16];//Read register 2
-always @(posedge clk)
+always @(negedge clk)
  registerfile[out1] = regwrite ? out3:registerfile[out1];//Write data to register
 
 //read data from memory, sum stores address
@@ -127,6 +127,7 @@ newmult4_to_1_32 mult5(out5,out4,jumpaddress,dpack,32'b0,orgate4out,jmxor);
 // load pc
 always @(negedge clk)
 #40 pc = out5;/////////////////////////////////out 4 de?i?tirildi out5 yap?ld?
+
 
 // alu, adder and control logic connections
 

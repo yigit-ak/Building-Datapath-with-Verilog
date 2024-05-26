@@ -8,8 +8,8 @@ assign rformat=~|in;
 assign lw=in[5]& (~in[4])&(~in[3])&(~in[2])&in[1]&in[0];
 assign sw=in[5]& (~in[4])&in[3]&(~in[2])&in[1]&in[0];
 assign beq=~in[5]& (~in[4])&(~in[3])&in[2]&(~in[1])&(~in[0]);
-assign isBrv=~funct[5]&funct[4]&~funct[3]&funct[2]&~funct[1]&~funct[0]; //010100 brv
-assign isJmxor=funct[5]&~funct[4]&~funct[3]&~funct[2]&funct[1]&funct[0]; //100011 jmxor
+assign isBrv=rformat&~funct[5]&funct[4]&~funct[3]&funct[2]&~funct[1]&~funct[0]; //010100 brv
+assign isJmxor=rformat&funct[5]&~funct[4]&~funct[3]&~funct[2]&funct[1]&funct[0]; //100011 jmxor
 
 always @ (*) begin
     // Default values
@@ -57,9 +57,11 @@ always @ (*) begin
         end
         6'b011111: begin // JALPC
             jalpc = 1;
+            aluop2=1; aluop1=1; aluop0=1;
         end
         6'b011011: begin // BALN
-            alusrc=1'bx; regwrite=1; aluop2=1'bx; aluop1=1'bx; aluop0=1'bx;
+            alusrc=1'bx; regwrite=1;
+            aluop2=1; aluop1=1; aluop0=1;
             baln = 1;
         end
     endcase
