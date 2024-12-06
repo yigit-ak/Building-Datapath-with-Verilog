@@ -8,11 +8,15 @@ datab,	//Read data 2 output of Register File
 out2,		//Output of mux with ALUSrc control-mult2
 out3,		//Output of mux with MemToReg control-mult3
 out4,		//Output of mux with (Branch&ALUZero) control-mult4
+out5,		//Output of mux with Jump control-mult5
 sum,		//ALU result
 extad,	//Output of sign-extend unit
 adder1out,	//Output of adder which adds PC and 4-add1
 adder2out,	//Output of adder which adds PC+4 and 2 shifted sign-extend result-add2
-sextad;	//Output of shift left 2 unit
+sextad,	//Output of shift left 2 unit for branch
+jumpaddr;	//Output of shift instr[25-0] left 2 unit [27-0] and addition of PC+4 [31-28] bits for jump
+
+wire [27:0] sjump;	//Output of shift instr[25-0] left 2 unit for jump
 
 wire [5:0] inst31_26;	//31-26 bits of instruction
 wire [4:0] 
@@ -23,6 +27,8 @@ out1;		//Write data input of Register File
 
 wire [15:0] inst15_0;	//15-0 bits of instruction
 
+wire [25:0] inst25_0;	//25-0 bits of instruction for jump
+
 wire [31:0] instruc,	//current instruction
 dpack;	//Read data output of memory (data read from memory)
 
@@ -31,7 +37,7 @@ wire [2:0] gout;	//Output of ALU control unit
 wire zout,	//Zero output of ALU
 pcsrc,	//Output of AND gate with Branch and ZeroOut inputs
 //Control signals
-regdest,alusrc,memtoreg,regwrite,memread,memwrite,branch,aluop1,aluop0;
+regdest,alusrc,memtoreg,regwrite,memread,memwrite,branch,aluop1,aluop0,jump; // jump control signal added
 
 //32-size register file (32 bit(1 word) for each register)
 reg [31:0] registerfile[0:31];
@@ -59,6 +65,7 @@ end
  assign inst20_16=instruc[20:16];
  assign inst15_11=instruc[15:11];
  assign inst15_0=instruc[15:0];
+ assign inst25_0=instruc[25:0]; // for jump
 
 
 // registers
@@ -84,9 +91,12 @@ mult2_to_1_32 mult3(out3, sum,dpack,memtoreg);
 //mux with (Branch&ALUZero) control
 mult2_to_1_32 mult4(out4, adder1out,adder2out,pcsrc);
 
+//mux with Jump control
+mult2_to_1_32 mult5(out5, out4,jumpaddr,jump);
+
 // load pc
 always @(negedge clk)
-pc=out4;
+pc=out5;
 
 // alu, adder and control logic connections
 
@@ -109,8 +119,14 @@ signext sext(instruc[15:0],extad);
 //ALU control unit
 alucont acont(aluop1,aluop0,instruc[3],instruc[2], instruc[1], instruc[0] ,gout);
 
-//Shift-left 2 unit
+//Shift-left 2 unit for branch
 shift shift2(sextad,extad);
+
+//Shift-left 2 unit for jump
+shift26 shift2jump(sjump, inst25_0);
+
+//jump address = PC+4[31-28], shifted jump address (instr[25-0] << 2)[27-0]
+assign jumpaddr = {adder1out[31:28], sjump};
 
 //AND gate
 assign pcsrc=branch && zout; 
